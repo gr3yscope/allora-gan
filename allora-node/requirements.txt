@@ -1,6 +1,7 @@
 numpy==1.24.3
 flask[async]
 gunicorn[gthread]
+tensorflow-cpu==2.17.0
 retrying==1.3.3
 requests
 pandas==2.1.3
