@@ -9,8 +9,8 @@ COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip setuptools \
     && pip install --timeout=360 --no-cache-dir -r requirements.txt
 
-# Install TensorFlow with GPU support
-RUN pip install --no-cache-dir tensorflow==2.13.0
+# Install TensorFlow with CPU support
+RUN pip install --no-cache-dir tensorflow-cpu==2.17.0
 
 FROM project_env
 
