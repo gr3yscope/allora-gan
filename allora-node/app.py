@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+
 from flask import Flask, Response
 import sqlite3
 import os
@@ -86,6 +89,7 @@ async def health():
 
 @app.route('/inference/<token>', methods=['GET'])
 async def get_inference(token):
+    logging.info(f"Received inference request for {token}")  # Added logging here
     if not token:
         response = json.dumps({"error": "Token is required"})
         return Response(response, status=HTTP_RESPONSE_CODE_404, mimetype='application/json')
