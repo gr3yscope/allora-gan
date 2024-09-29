@@ -8,5 +8,5 @@ timeout = 30
 keepalive = 5
 worker_class = "gthread"
 workers = 4
-threads = 8
+threads = 6
 bind = "0.0.0.0:8001"
