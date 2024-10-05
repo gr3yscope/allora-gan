@@ -136,8 +136,8 @@ HTTP_RESPONSE_CODE_500 = 500
 
 # Load Random Forest model and scaler
 def load_model_and_scaler(token_name, prediction_horizon):
-    model_path = f'models/{token_name.lower()}_rf_model_{prediction_horizon}m.pkl'
-    scaler_path = f'models/{token_name.lower()}_scaler_{prediction_horizon}m.pkl'
+    model_path = f'app/models/{token_name.lower()}_rf_model_{prediction_horizon}m.pkl'
+    scaler_path = f'app/models/{token_name.lower()}_scaler_{prediction_horizon}m.pkl'
     
     if not os.path.exists(model_path) or not os.path.exists(scaler_path):
         return None, None
