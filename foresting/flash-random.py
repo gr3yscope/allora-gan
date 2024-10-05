@@ -91,22 +91,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
     except Exception as e:
         print(f"Error occurred while training Random Forest model for {token_name}: {e}")
 
-# Dummy Keras model saving just for consistent .keras structure (even though RF model is used)
-def save_dummy_keras_model(token_name, prediction_horizon):
-    pass
-
-    # Create and train a dummy keras model just to save the placeholder file
-    dummy_model = Sequential()
-    dummy_model.add(Dense(1, input_shape=(1,), activation='linear'))
-    dummy_model.compile(optimizer='adam', loss='mean_squared_error')
-    
-    # Dummy training with random data for a single epoch (this is just for saving the .keras file)
-    X_dummy = np.random.rand(10, 1)
-    Y_dummy = np.random.rand(10, 1)
-    dummy_model.fit(X_dummy, Y_dummy, epochs=1, verbose=0, callbacks=[checkpoint])
-    print(f"Dummy Keras model for {token_name} saved to {keras_model_path}")
-
-# General training function to train Random Forest and save as both .pkl and .keras
+# General training function to train Random Forest and save as .pkl
 def train_and_save_model(token_name, look_back, prediction_horizon):
     train_and_save_rf_model(token_name, look_back, prediction_horizon)
 
@@ -124,7 +109,7 @@ for token in ['ETH', 'ARB', 'BTC', 'SOL', 'BNB']:
 
 
 
-
+----------------------------------------------------------------------------
 
 import logging
 logging.basicConfig(level=logging.INFO)
