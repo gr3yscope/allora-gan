@@ -45,7 +45,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
         data = load_data(token_name)
         X, Y, scaler = prepare_data_for_rf(data, look_back, prediction_horizon)
         
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.5, random_state=42)
         
         # Random Forest model with hyperparameter tuning
         pipeline = Pipeline([
@@ -55,7 +55,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
 
         # Hyperparameter tuning using RandomizedSearchCV
         param_dist = {
-            'rf__n_estimators': [100, 200, 300, 500],
+            'rf__n_estimators': [100, 200, 300, 400],
             'rf__max_depth': [None, 10, 20, 30],
             'rf__min_samples_split': [2, 5, 10],
             'rf__min_samples_leaf': [1, 2, 4],
@@ -63,7 +63,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
         }
 
         # RandomizedSearchCV to find the best parameters
-        random_search = RandomizedSearchCV(pipeline, param_distributions=param_dist, n_iter=50, cv=3, scoring='neg_mean_squared_error', n_jobs=1, random_state=42, verbose=2)
+        random_search = RandomizedSearchCV(pipeline, param_distributions=param_dist, n_iter=30, cv=3, scoring='neg_mean_squared_error', n_jobs=3, random_state=42, verbose=2)
         random_search.fit(X_train, Y_train)
 
         best_model = random_search.best_estimator_
