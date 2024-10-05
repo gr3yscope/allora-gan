@@ -8,7 +8,6 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
-from tensorflow.keras.callbacks import ModelCheckpoint
 from app_config import DATABASE_PATH
 
 # Ensure the models directory exists
@@ -94,8 +93,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
 
 # Dummy Keras model saving just for consistent .keras structure (even though RF model is used)
 def save_dummy_keras_model(token_name, prediction_horizon):
-    keras_model_path = f'models/{token_name.lower()}_model_{prediction_horizon}m.keras'
-    checkpoint = ModelCheckpoint(keras_model_path, monitor='loss', save_best_only=True, mode='min')
+    pass
 
     # Create and train a dummy keras model just to save the placeholder file
     dummy_model = Sequential()
@@ -111,7 +109,6 @@ def save_dummy_keras_model(token_name, prediction_horizon):
 # General training function to train Random Forest and save as both .pkl and .keras
 def train_and_save_model(token_name, look_back, prediction_horizon):
     train_and_save_rf_model(token_name, look_back, prediction_horizon)
-    save_dummy_keras_model(token_name, prediction_horizon)
 
 # Define different time horizons for model training
 time_horizons = {
@@ -123,6 +120,8 @@ time_horizons = {
 for token in ['ETH', 'ARB', 'BTC', 'SOL', 'BNB']:
     for horizon_name, (look_back, prediction_horizon) in time_horizons.items():
         train_and_save_model(f"{token}USD".lower(), look_back, prediction_horizon)
+
+
 
 
 
@@ -253,6 +252,7 @@ async def get_price(token, block_height):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=API_PORT)
+
 
 
 
