@@ -63,7 +63,7 @@ def train_and_save_rf_model(token_name, look_back, prediction_horizon):
         }
 
         # RandomizedSearchCV to find the best parameters
-        random_search = RandomizedSearchCV(pipeline, param_distributions=param_dist, n_iter=50, cv=5, scoring='neg_mean_squared_error', n_jobs=-1, random_state=42)
+        random_search = RandomizedSearchCV(pipeline, param_distributions=param_dist, n_iter=50, cv=3, scoring='neg_mean_squared_error', n_jobs=1, random_state=42, verbose=2)
         random_search.fit(X_train, Y_train)
 
         best_model = random_search.best_estimator_
