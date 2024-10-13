@@ -11,6 +11,7 @@ from config import data_base_path
 import random
 import requests
 import retrying
+import joblib
 
 forecast_price = {}
 
@@ -149,6 +150,10 @@ def train_model(token):
     best_rf_model = random_search_rf.best_estimator_
     print(f"Best parameters for Random Forest: {random_search_rf.best_params_}")
 
+    # Save the trained Random Forest model
+    joblib.dump(best_rf_model, f"models/{token}_random_forest_model.pkl")
+    print(f"Random Forest model saved for {token}")
+
     # Evaluate Random Forest
     rf_predicted_price = best_rf_model.predict(X)
     mse_rf = mean_squared_error(y, rf_predicted_price)
@@ -175,6 +180,10 @@ def train_model(token):
     # Get the best model from RandomizedSearchCV
     best_gb_model = random_search_gb.best_estimator_
     print(f"Best parameters for Gradient Boosting: {random_search_gb.best_params_}")
+
+    # Save the trained Gradient Boosting model
+    joblib.dump(best_gb_model, f"models/{token}_gradient_boosting_model.pkl")
+    print(f"Gradient Boosting model saved for {token}")
 
     # Evaluate Gradient Boosting
     gb_predicted_price = best_gb_model.predict(X)
