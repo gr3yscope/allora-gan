@@ -215,3 +215,74 @@ def update_data():
 
 if __name__ == "__main__":
     update_data()
+
+
+
+-----------------------------------------------------------------------
+
+
+import json
+import os
+import joblib
+from flask import Flask, Response
+import numpy as np
+
+app = Flask(__name__)
+
+# Path ke direktori tempat menyimpan model yang telah dilatih
+MODEL_DIR = "models"
+
+# Fungsi untuk memuat model dan scaler
+def load_model_and_scaler(token, model_type):
+    """Memuat model dan scaler dari file .pkl"""
+    model_path = os.path.join(MODEL_DIR, f"{token}_{model_type}_model.pkl")
+    scaler_path = os.path.join(MODEL_DIR, f"{token}_scaler.pkl")
+    
+    if os.path.exists(model_path) and os.path.exists(scaler_path):
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        return model, scaler
+    else:
+        print(f"Model atau scaler untuk token {token} tidak ditemukan.")
+        return None, None
+
+# Fungsi untuk melakukan inferensi (prediksi)
+def get_token_inference(token):
+    """Melakukan inferensi menggunakan model yang sudah dilatih dan disimpan."""
+    try:
+        # Memuat model Random Forest dan Gradient Boosting
+        rf_model, scaler = load_model_and_scaler(token, "random_forest")
+        gb_model, _ = load_model_and_scaler(token, "gradient_boosting")
+        
+        if rf_model is None or gb_model is None or scaler is None:
+            return {"error": f"Model untuk token {token} tidak tersedia"}
+        
+        # Misalkan kita gunakan data terbaru (prediksi terakhir) untuk inferensi
+        last_time_index = np.array([[100]])  # Contoh input sederhana
+        last_time_index_scaled = scaler.transform(last_time_index)
+
+        # Prediksi menggunakan kedua model dan gabungkan hasilnya
+        rf_pred = rf_model.predict(last_time_index_scaled)[0]
+        gb_pred = gb_model.predict(last_time_index_scaled)[0]
+        combined_pred = (rf_pred + gb_pred) / 2
+
+        return combined_pred
+    except Exception as e:
+        print(f"Error dalam prediksi: {e}")
+        return {"error": str(e)}
+
+@app.route("/inference/<string:token>")
+def generate_inference(token):
+    """Generate inference for given token."""
+    if not token or token not in ["ETH", "BTC", "SOL"]:
+        error_msg = "Token is required" if not token else "Token not supported"
+        return Response(json.dumps({"error": error_msg}), status=400, mimetype='application/json')
+
+    try:
+        inference = get_token_inference(token)
+        return Response(json.dumps({"prediction": inference}), status=200, mimetype='application/json')
+    except Exception as e:
+        return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8011)
