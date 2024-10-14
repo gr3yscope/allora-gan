@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 from config import data_base_path
 import random
 import requests
@@ -138,10 +138,10 @@ def train_model(token):
         'model__max_depth': [None, 10, 20, 30],
         'model__min_samples_split': [2, 5, 10],
         'model__min_samples_leaf': [1, 2, 4],
-        'model__bootstrap': [True, False]  # Added bootstrap parameter
+        'model__bootstrap': [True, False]
     }
 
-    search = RandomizedSearchCV(pipeline, param_dist, n_iter=10, scoring='neg_mean_squared_error', cv=5, random_state=42)
+    search = RandomizedSearchCV(pipeline, param_dist, n_iter=15, scoring='neg_mean_squared_error', cv=5, random_state=0)
     search.fit(X, y)
 
     # Predictions
@@ -157,14 +157,16 @@ def train_model(token):
 
     # Evaluation
     y_pred = search.predict(X)
-    mse = mean_squared_error(y, y_pred)
+    mae = mean_absolute_error(y, y_pred)
+    rmse = mean_squared_error(y, y_pred, squared=False)  # RMSE
     r2 = r2_score(y, y_pred)
 
     # End time to measure the execution time
     time_end = datetime.now()
 
     print(f"Model performance for {token}:")
-    print(f"Mean Squared Error: {mse}")
+    print(f"Mean Absolute Error: {mae}")
+    print(f"Root Mean Squared Error: {rmse}")
     print(f"R2 Score: {r2}")
     print(f"Predicted price: {predicted_price}, Min price: {min_price}, Max price: {max_price}")
     print(f"Forecasted price for {token}: {forecast_price[token]}")
