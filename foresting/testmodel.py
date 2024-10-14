@@ -179,3 +179,64 @@ def update_data():
 
 if __name__ == "__main__":
     update_data()
+
+
+
+----------------------------------------------------
+
+import json
+import logging
+from flask import Flask, Response
+from model import download_data, format_data, train_model, forecast_price
+
+# Set up basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+app = Flask(__name__)
+
+def update_data():
+    """Download price data, format data, and train model."""
+    tokens = ["ETH", "BTC", "SOL"]
+    for token in tokens:
+        logging.info(f"Updating data for {token}")
+        download_data(token)
+        format_data(token)
+        train_model(token)
+        logging.info(f"Completed training for {token}")
+
+def get_token_inference(token):
+    """Retrieve the forecasted price for a given token."""
+    return forecast_price.get(token, 0)
+
+@app.route("/inference/<string:token>")
+def generate_inference(token):
+    """Generate inference for a given token."""
+    if not token or token not in ["ETH", "BTC", "SOL"]:
+        error_msg = "Token is required" if not token else "Token not supported"
+        logging.warning(f"Inference failed for {token}: {error_msg}")
+        return Response(json.dumps({"error": error_msg}), status=400, mimetype='application/json')
+
+    try:
+        inference = get_token_inference(token)
+        logging.info(f"Generated inference for {token}: {inference}")
+        return Response(json.dumps({"token": token, "forecasted_price": inference}), status=200, mimetype='application/json')
+    except Exception as e:
+        logging.error(f"Error generating inference for {token}: {str(e)}")
+        return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
+
+@app.route("/update")
+def update():
+    """Update data and return status."""
+    try:
+        logging.info("Updating data for all tokens")
+        update_data()
+        logging.info("Update completed successfully")
+        return Response(json.dumps({"status": "success"}), status=200, mimetype='application/json')
+    except Exception as e:
+        logging.error(f"Error during update: {str(e)}")
+        return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
+
+if __name__ == "__main__":
+    logging.info("Starting application and updating data initially")
+    update_data()
+    app.run(host="0.0.0.0", port=8011)
