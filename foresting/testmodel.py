@@ -189,15 +189,16 @@ if __name__ == "__main__":
 import json
 import logging
 from flask import Flask, Response
-from model import download_data, format_data, train_model, forecast_price
+from model import download_data, format_data, train_model
+from model import forecast_price
 
-# Set up basic logging
+# Set up basic logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 
 def update_data():
-    """Download price data, format data, and train model."""
+    """Download price data, format data and train model."""
     tokens = ["ETH", "BTC", "SOL"]
     for token in tokens:
         logging.info(f"Updating data for {token}")
@@ -205,9 +206,9 @@ def update_data():
         format_data(token)
         train_model(token)
         logging.info(f"Completed training for {token}")
+    logging.info("Update completed successfully")
 
 def get_token_inference(token):
-    """Retrieve the forecasted price for a given token."""
     return forecast_price.get(token, 0)
 
 @app.route("/inference/<string:token>")
@@ -220,8 +221,9 @@ def generate_inference(token):
 
     try:
         inference = get_token_inference(token)
-        logging.info(f"Generated inference for {token}: {inference}")
-        return Response(json.dumps({"token": token, "forecasted_price": inference}), status=200, mimetype='application/json')
+        rounded_inference = round(inference, 2)
+        logging.info(f"Generated inference for {token}: {rounded_inference}")
+        return Response(str(rounded_inference), status=200)
     except Exception as e:
         logging.error(f"Error generating inference for {token}: {str(e)}")
         return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
@@ -230,13 +232,12 @@ def generate_inference(token):
 def update():
     """Update data and return status."""
     try:
-        logging.info("Updating data for all tokens")
+        logging.info("Starting update process")
         update_data()
-        logging.info("Update completed successfully")
-        return Response(json.dumps({"status": "success"}), status=200, mimetype='application/json')
+        return "0"
     except Exception as e:
         logging.error(f"Error during update: {str(e)}")
-        return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
+        return "1"
 
 if __name__ == "__main__":
     logging.info("Starting application and updating data initially")
